@@ -1,4 +1,4 @@
-// https://github.com/leixiaohua1020/simplest_ffmpeg_streamer/blob/master/simplest_ffmpeg_receiver/simplest_ffmpeg_receiver.cpp
+// https://github.com/leixiaohua1020/simplest_ffmpeg_device/blob/master/simplest_ffmpeg_readcamera/simplest_ffmpeg_readcamera.cpp
 package main
 
 import (
@@ -91,38 +91,15 @@ func main0() (ret ffcommon.FInt) {
 
 	//Register Device
 	libavdevice.AvdeviceRegisterAll()
-	//Windows
-	if USE_DSHOW != 0 {
-		//Use dshow
-		//
-		//Need to Install screen-capture-recorder
-		//screen-capture-recorder
-		//Website: http://sourceforge.net/projects/screencapturer/
-		//
-		ifmt = libavformat.AvFindInputFormat("dshow")
-		if libavformat.AvformatOpenInput(&pFormatCtx, "video=screen-capture-recorder", ifmt, nil) != 0 {
-			fmt.Printf("Couldn't open input stream1.\n")
-			return -1
-		}
-	} else {
-		//Use gdigrab
-		var options *libavutil.AVDictionary
-		//Set some options
-		//grabbing frame rate
-		//av_dict_set(&options,"framerate","5",0);
-		//The distance from the left edge of the screen or desktop
-		//av_dict_set(&options,"offset_x","20",0);
-		//The distance from the top edge of the screen or desktop
-		//av_dict_set(&options,"offset_y","40",0);
-		//Video frame size. The default is to capture the full screen
-		//av_dict_set(&options,"video_size","640x480",0);
-		// libavutil.AvDictSet(&options, "probesize", "100000000", 0)
-		ifmt = libavformat.AvFindInputFormat("gdigrab")
-		if libavformat.AvformatOpenInput(&pFormatCtx, "desktop", ifmt, &options) != 0 {
-			fmt.Printf("Couldn't open input stream2.\n")
-			return -1
-		}
-
+	/////////////解码器部分//////////////////////
+	//打开摄像头
+	ifmt = libavformat.AvFindInputFormat("dshow")
+	var options *libavutil.AVDictionary
+	// libavutil.AvDictSet(&options, "probesize", "100000000", 0)
+	// libavutil.AvDictSet(&options, "rtbufsize", "100000000", 0)
+	if libavformat.AvformatOpenInput(&pFormatCtx, "video=Full HD webcam", ifmt, &options) < 0 {
+		fmt.Printf("Cannot open camera.\n")
+		return
 	}
 
 	if pFormatCtx.AvformatFindStreamInfo(nil) < 0 {
@@ -140,12 +117,24 @@ func main0() (ret ffcommon.FInt) {
 		fmt.Printf("Didn't find a video stream.\n")
 		return -1
 	}
-	pCodecCtx = pFormatCtx.GetStream(uint32(videoindex)).Codec
-	pCodec = libavcodec.AvcodecFindDecoder(pCodecCtx.CodecId)
+	pCodecCtxPara := pFormatCtx.GetStream(uint32(videoindex)).Codecpar
+	pCodec = libavcodec.AvcodecFindDecoder(pCodecCtxPara.CodecId)
 	if pCodec == nil {
 		fmt.Printf("Codec not found.\n")
 		return -1
 	}
+
+	pCodecCtx = pCodec.AvcodecAllocContext3()
+	if pCodecCtx == nil {
+		fmt.Printf("Cannot alloc valid decode codec context.\n")
+		return
+	}
+
+	if pCodecCtx.AvcodecParametersToContext(pCodecCtxPara) < 0 {
+		fmt.Printf("Cannot initialize parameters.\n")
+		return
+	}
+
 	if pCodecCtx.AvcodecOpen2(pCodec, nil) < 0 {
 		fmt.Printf("Could not open codec.\n")
 		return -1
@@ -165,19 +154,21 @@ func main0() (ret ffcommon.FInt) {
 		return -1
 	}
 	var screen_w, screen_h ffcommon.FInt = 640, 360
-	var mode *sdl.SDL_DisplayMode = new(sdl.SDL_DisplayMode)
-	if sdl.SDL_GetCurrentDisplayMode(0, mode) != 0 {
-		fmt.Printf("SDL: could not get current display mode - exiting:%s\n", sdl.SDL_GetError())
-		return -1
-	}
+	// var mode *sdl.SDL_DisplayMode = new(sdl.SDL_DisplayMode)
+	// if sdl.SDL_GetCurrentDisplayMode(0, mode) != 0 {
+	// 	fmt.Printf("SDL: could not get current display mode - exiting:%s\n", sdl.SDL_GetError())
+	// 	return -1
+	// }
 	//Half of the Desktop's width and height.
-	screen_w = mode.W / 2
-	screen_h = mode.H / 2
-	window := sdl.SDL_CreateWindow("Simplest FFmpeg Grab Desktop", sdl.SDL_WINDOWPOS_UNDEFINED, sdl.SDL_WINDOWPOS_UNDEFINED, screen_w, screen_h, 0)
+	screen_w = pCodecCtx.Width
+	screen_h = pCodecCtx.Height
+	window := sdl.SDL_CreateWindow("Simplest FFmpeg Read Camera", sdl.SDL_WINDOWPOS_UNDEFINED, sdl.SDL_WINDOWPOS_UNDEFINED, screen_w, screen_h, 0)
 	if window == nil {
 		fmt.Printf("SDL: could not create window - exiting:%s\n", sdl.SDL_GetError())
 		return -1
 	}
+	window.SDL_ShowWindow()
+	time.Sleep(2 * time.Second)
 	defer window.SDL_DestroyWindow()
 	renderer := window.SDL_CreateRenderer(-1, 0)
 	if renderer == nil {
@@ -191,8 +182,6 @@ func main0() (ret ffcommon.FInt) {
 		pCodecCtx.Width,
 		pCodecCtx.Height)
 	defer texture.SDL_DestroyTexture()
-	window.SDL_ShowWindow()
-	time.Sleep(2 * time.Second)
 
 	var rect sdl.SDL_Rect
 	rect.X = 0
@@ -202,8 +191,8 @@ func main0() (ret ffcommon.FInt) {
 	var rect2 sdl.SDL_Rect
 	rect2.X = 0
 	rect2.Y = 0
-	rect2.W = mode.W
-	rect2.H = mode.H
+	rect2.W = pCodecCtx.Width
+	rect2.H = pCodecCtx.Height
 
 	//SDL End------------------------
 	// var got_picture ffcommon.FInt
@@ -265,7 +254,8 @@ func main0() (ret ffcommon.FInt) {
 
 					}
 				}
-				packet.AvPacketUnref()
+
+				packet.AvFreePacket()
 			} else {
 				//Exit Thread
 				thread_exit = 1
