@@ -1,0 +1,89 @@
+// https://github.com/leixiaohua1020/simplest_ffmpeg_device/blob/master/simplest_ffmpeg_readcamera/simplest_ffmpeg_readcamera.cpp
+package main
+
+import (
+	"fmt"
+	"os"
+
+	"github.com/moonfdd/ffmpeg-go/ffcommon"
+	"github.com/moonfdd/ffmpeg-go/libavcodec"
+	"github.com/moonfdd/ffmpeg-go/libavdevice"
+	"github.com/moonfdd/ffmpeg-go/libavformat"
+	"github.com/moonfdd/ffmpeg-go/libavutil"
+	"github.com/moonfdd/sdl2-go/sdlcommon"
+)
+
+func main0() (ret ffcommon.FInt) {
+	var pFormatCtx *libavformat.AVFormatContext
+	var i, videoindex int
+
+	// Register all formats and codecs
+	libavformat.AvRegisterAll()
+	libavdevice.AvdeviceRegisterAll()
+	// Open camera stream
+	ifmt := libavformat.AvFindInputFormat("dshow")
+	if libavformat.AvformatOpenInput(&pFormatCtx, "video=Full HD webcam", ifmt, nil) != 0 {
+		fmt.Println("Couldn't open input stream")
+		os.Exit(1)
+	}
+	//defer pFormatCtx.AvformatCloseInput()
+
+	// Retrieve stream information
+	if pFormatCtx.AvformatFindStreamInfo(nil) < 0 {
+		fmt.Println("Couldn't find stream information")
+		os.Exit(1)
+	}
+
+	// Find the first video stream
+	for i = 0; i < int(pFormatCtx.NbStreams); i++ {
+		if pFormatCtx.GetStream(uint32(i)).Codecpar.CodecType == libavutil.AVMEDIA_TYPE_VIDEO {
+			videoindex = i
+			break
+		}
+	}
+
+	// Loop through packets and print message when a video packet is received
+	packet := libavcodec.AvPacketAlloc()
+	defer libavcodec.AvPacketFree(&packet)
+
+	for {
+		if pFormatCtx.AvReadFrame(packet) >= 0 {
+			if packet.StreamIndex == uint32(videoindex) {
+				fmt.Println("已经获取到码流")
+			}
+		}
+	}
+	return 0
+}
+
+func main() {
+
+	os.Setenv("Path", os.Getenv("Path")+";./lib/windows/ffmpeg")
+	ffcommon.SetAvutilPath("./lib/windows/ffmpeg/avutil-56.dll")
+	ffcommon.SetAvcodecPath("./lib/windows/ffmpeg/avcodec-58.dll")
+	ffcommon.SetAvdevicePath("./lib/windows/ffmpeg/avdevice-58.dll")
+	ffcommon.SetAvfilterPath("./lib/windows/ffmpeg/avfilter-56.dll")
+	ffcommon.SetAvformatPath("./lib/windows/ffmpeg/avformat-58.dll")
+	ffcommon.SetAvpostprocPath("./lib/windows/ffmpeg/postproc-55.dll")
+	ffcommon.SetAvswresamplePath("./lib/windows/ffmpeg/swresample-3.dll")
+	ffcommon.SetAvswscalePath("./lib/windows/ffmpeg/swscale-5.dll")
+	sdlcommon.SetSDL2Path("./lib/windows/sdl/SDL2.0.16.dll")
+
+	genDir := "./out"
+	_, err := os.Stat(genDir)
+	if err != nil {
+		if os.IsNotExist(err) {
+			os.Mkdir(genDir, 0777) //  Everyone can read write and execute
+		}
+	}
+
+	// go func() {
+	// 	time.Sleep(1000)
+	// 	exec.Command("./lib/ffplay.exe", "rtmp://localhost/publishlive/livestream").Output()
+	// 	if err != nil {
+	// 		fmt.Println("play err = ", err)
+	// 	}
+	// }()
+
+	main0()
+}
