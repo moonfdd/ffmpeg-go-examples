@@ -1,0 +1,3 @@
+github.com/moonfdd/ffmpeg-go v0.0.0-20230312012703-645db7644c54/go.mod h1:/IOm58TbyzXZ3aQrYqaz4TSu+UO6exa4Sdc4kIiWWsA=
+github.com/moonfdd/sdl2-go v0.0.0-20230312014041-746cff7eb2bc h1:MYLhk0P7qMd3twjxScZeMBPKztAweqQsEuV02HVM7E0=
+github.com/moonfdd/sdl2-go v0.0.0-20230312014041-746cff7eb2bc/go.mod h1:As4b7mDqTjd1L8q5Q3boNxiQlzGizy/xdyKTMKB1i8E=
