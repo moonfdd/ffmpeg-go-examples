@@ -4,3 +4,5 @@ github.com/moonfdd/sdl2-go v0.0.0-20230312014041-746cff7eb2bc h1:MYLhk0P7qMd3twj
 github.com/moonfdd/sdl2-go v0.0.0-20230312014041-746cff7eb2bc/go.mod h1:As4b7mDqTjd1L8q5Q3boNxiQlzGizy/xdyKTMKB1i8E=
 github.com/ying32/dylib v0.0.0-20220227124818-fdf9ea9fbc96 h1:+kU/yXSAQPL4G7OQOxz/j62GdM+G5yd5J1/NNm7u3QI=
 github.com/ying32/dylib v0.0.0-20220227124818-fdf9ea9fbc96/go.mod h1:WPBTfbqg/aA1xqHFPB4fgBHETq/G/75yErbnexmaEOo=
+github.com/ying32/govcl v2.2.3+incompatible h1:Iyfcl26yNE1USm+3uG+btQyhkoFIV18+VITrUdHu8Lw=
+github.com/ying32/govcl v2.2.3+incompatible/go.mod h1:yZVtbJ9Md1nAVxtHKIriKZn4K6TQYqI1en3sN/m9FJ8=

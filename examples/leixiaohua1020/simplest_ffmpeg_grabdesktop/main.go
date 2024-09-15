@@ -1,4 +1,4 @@
-// https://github.com/leixiaohua1020/simplest_ffmpeg_streamer/blob/master/simplest_ffmpeg_receiver/simplest_ffmpeg_receiver.cpp
+// https://github.com/leixiaohua1020/simplest_ffmpeg_device/blob/master/simplest_ffmpeg_grabdesktop/simplest_ffmpeg_grabdesktop.cpp
 package main
 
 import (
@@ -40,7 +40,7 @@ func sfp_refresh_thread(opaque ffcommon.FVoidP) uintptr {
 			event.SDL_PushEvent()
 			ispush = false
 		}
-		sdl.SDL_Delay(40)
+		// sdl.SDL_Delay(40)
 	}
 	fmt.Println("sfp_refresh_thread 发送退出事件")
 	// thread_exit = 0
@@ -156,7 +156,7 @@ func main0() (ret ffcommon.FInt) {
 	pFrameYUV = libavutil.AvFrameAlloc()
 	//unsigned char *out_buffer=(unsigned char *)av_malloc(avpicture_get_size(AV_PIX_FMT_YUV420P, pCodecCtx->width, pCodecCtx->height));
 	//avpicture_fill((AVPicture *)pFrameYUV, out_buffer, AV_PIX_FMT_YUV420P, pCodecCtx->width, pCodecCtx->height);
-	out_buffer := (*byte)(unsafe.Pointer(libavutil.AvMalloc(uint64(libavcodec.AvpictureGetSize(int32(libavutil.AV_PIX_FMT_YUV420P), pCodecCtx.Width, pCodecCtx.Height)))))
+	out_buffer := (*byte)(unsafe.Pointer(libavutil.AvMalloc(uint64(libavcodec.AvpictureGetSize(libavutil.AV_PIX_FMT_YUV420P, pCodecCtx.Width, pCodecCtx.Height)))))
 	((*libavcodec.AVPicture)(unsafe.Pointer(pFrameYUV))).AvpictureFill(out_buffer, libavutil.AV_PIX_FMT_YUV420P, pCodecCtx.Width, pCodecCtx.Height)
 	//SDL----------------------------
 	// if sdl.SDL_Init(sdl.SDL_INIT_VIDEO|sdl.SDL_INIT_AUDIO|sdl.SDL_INIT_TIMER) != 0 {
