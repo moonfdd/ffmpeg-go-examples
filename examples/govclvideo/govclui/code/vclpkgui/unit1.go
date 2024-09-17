@@ -8,25 +8,30 @@ import (
 
 type TForm1 struct {
     *vcl.TForm
-    Panel1  *vcl.TPanel
-    Button1 *vcl.TButton
-    Button2 *vcl.TButton
-    Label1  *vcl.TLabel
-    Button3 *vcl.TButton
-    Panel2  *vcl.TPanel
-    Button4 *vcl.TButton
-    Button5 *vcl.TButton
-    Label2  *vcl.TLabel
-    Panel3  *vcl.TPanel
-    Button6 *vcl.TButton
-    Button7 *vcl.TButton
-    Edit1   *vcl.TEdit
-    Label3  *vcl.TLabel
-    Panel4  *vcl.TPanel
-    Button8 *vcl.TButton
-    Button9 *vcl.TButton
-    Label4  *vcl.TLabel
-    Edit2   *vcl.TEdit
+    Panel1   *vcl.TPanel
+    Button1  *vcl.TButton
+    Button2  *vcl.TButton
+    Label1   *vcl.TLabel
+    Button3  *vcl.TButton
+    Panel2   *vcl.TPanel
+    Button4  *vcl.TButton
+    Button5  *vcl.TButton
+    Label2   *vcl.TLabel
+    Panel3   *vcl.TPanel
+    Button6  *vcl.TButton
+    Button7  *vcl.TButton
+    Edit1    *vcl.TEdit
+    Label3   *vcl.TLabel
+    Panel4   *vcl.TPanel
+    Button8  *vcl.TButton
+    Button9  *vcl.TButton
+    Label4   *vcl.TLabel
+    Edit2    *vcl.TEdit
+    Panel5   *vcl.TPanel
+    Button10 *vcl.TButton
+    Button11 *vcl.TButton
+    Label5   *vcl.TLabel
+    Edit3    *vcl.TEdit
 
     //::private::
     TForm1Fields

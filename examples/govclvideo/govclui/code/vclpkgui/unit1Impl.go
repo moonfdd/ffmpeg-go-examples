@@ -5,6 +5,9 @@ import (
 	"os"
 	"unsafe"
 
+	"github.com/deepch/vdk/av"
+	"github.com/deepch/vdk/codec/h264parser"
+	"github.com/deepch/vdk/format/rtmp"
 	"github.com/moonfdd/ffmpeg-go/ffcommon"
 	"github.com/moonfdd/ffmpeg-go/libavcodec"
 	"github.com/moonfdd/ffmpeg-go/libavdevice"
@@ -351,8 +354,8 @@ func (f *TForm1) OnButton5Click(sender vcl.IObject) {
 // https://www.cnblogs.com/kn-zheng/p/17411093.html
 // rtmp显示
 func (f *TForm1) OnButton6Click(sender vcl.IObject) {
-	f.Edit1.SetText("http://www.w3school.com.cn/i/movie.mp4")
-	f.Edit1.SetText("rtmp://liteavapp.qcloud.com/live/liteavdemoplayerstreamid")
+	// f.Edit1.SetText("http://www.w3school.com.cn/i/movie.mp4")
+	// f.Edit1.SetText("rtmp://liteavapp.qcloud.com/live/liteavdemoplayerstreamid")
 	go func() {
 		var pFormatCtx *libavformat.AVFormatContext
 		var i, videoindex ffcommon.FInt
@@ -519,8 +522,8 @@ func (f *TForm1) OnButton7Click(sender vcl.IObject) {
 
 // vlc播放
 func (f *TForm1) OnButton8Click(sender vcl.IObject) {
-	f.Edit2.SetText("http://www.w3school.com.cn/i/movie.mp4")
-	f.Edit2.SetText("rtmp://liteavapp.qcloud.com/live/liteavdemoplayerstreamid")
+	// f.Edit2.SetText("http://www.w3school.com.cn/i/movie.mp4")
+	// f.Edit2.SetText("rtmp://liteavapp.qcloud.com/live/liteavdemoplayerstreamid")
 	go func() {
 		player := libvlc.NewVLCMediaPlayer()
 		if player == nil {
@@ -536,4 +539,45 @@ func (f *TForm1) OnButton8Click(sender vcl.IObject) {
 // vlc停止
 func (f *TForm1) OnButton9Click(sender vcl.IObject) {
 
+}
+
+// vdk rtmp播放
+func (f *TForm1) OnButton10Click(sender vcl.IObject) {
+
+	go func() {
+		c, err := rtmp.Dial(f.Edit3.Text())
+		if err != nil {
+			vcl.ShowMessage(fmt.Sprint("连接rtmp失败:", err))
+			return
+		}
+		defer c.Close()
+
+		for {
+			packetAV, err := c.ReadPacket()
+			if err != nil {
+				vcl.ShowMessage(fmt.Sprint("读取Packet失败:", err))
+				return
+			}
+			codeData, err := c.Streams()
+			if err != nil {
+				vcl.ShowMessage(fmt.Sprint("读取Streams失败:", err))
+				return
+			}
+			if codeData[packetAV.Idx].Type() == av.H264 {
+				codec := codeData[packetAV.Idx].(h264parser.CodecData)
+				_ = codec
+
+			}
+		}
+	}()
+}
+
+// vdk rtmp停止
+func (f *TForm1) OnButton11Click(sender vcl.IObject) {
+
+}
+
+func (f *TForm1) OnFormCreate(sender vcl.IObject) {
+	f.Button3.SetVisible(false)
+	f.OnButton3Click(nil)
 }

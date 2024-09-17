@@ -1,11 +1,12 @@
 object Form1: TForm1
-  Left = 662
-  Height = 612
-  Top = 217
-  Width = 753
+  Left = 327
+  Height = 595
+  Top = 181
+  Width = 1149
   Caption = 'Form1'
-  ClientHeight = 612
-  ClientWidth = 753
+  ClientHeight = 595
+  ClientWidth = 1149
+  OnCreate = FormCreate
   LCLVersion = '2.0.10.0'
   object Panel1: TPanel
     Left = 8
@@ -125,5 +126,89 @@ object Form1: TForm1
     Width = 52
     Caption = 'rtmp显示'
     ParentColor = False
+  end
+  object Panel4: TPanel
+    Left = 392
+    Height = 221
+    Top = 299
+    Width = 330
+    Caption = 'Panel4'
+    TabOrder = 11
+  end
+  object Button8: TButton
+    Left = 597
+    Height = 25
+    Top = 560
+    Width = 75
+    Caption = '播放'
+    OnClick = Button8Click
+    TabOrder = 12
+  end
+  object Button9: TButton
+    Left = 647
+    Height = 25
+    Top = 560
+    Width = 75
+    Caption = '停止'
+    OnClick = Button9Click
+    TabOrder = 13
+  end
+  object Label4: TLabel
+    Left = 512
+    Height = 17
+    Top = 560
+    Width = 39
+    Caption = 'vlc显示'
+    ParentColor = False
+  end
+  object Edit2: TEdit
+    Left = 384
+    Height = 25
+    Top = 528
+    Width = 332
+    TabOrder = 14
+    Text = 'http://devimages.apple.com/iphone/samples/bipbop/gear1/prog_index.m3u8'
+  end
+  object Panel5: TPanel
+    Left = 736
+    Height = 224
+    Top = 8
+    Width = 344
+    Caption = 'Panel5'
+    TabOrder = 15
+  end
+  object Button10: TButton
+    Left = 928
+    Height = 25
+    Top = 272
+    Width = 75
+    Caption = '播放'
+    OnClick = Button10Click
+    TabOrder = 16
+  end
+  object Button11: TButton
+    Left = 1007
+    Height = 25
+    Top = 272
+    Width = 75
+    Caption = '停止'
+    OnClick = Button11Click
+    TabOrder = 17
+  end
+  object Label5: TLabel
+    Left = 792
+    Height = 17
+    Top = 272
+    Width = 101
+    Caption = 'vdk rtmp显示失败'
+    ParentColor = False
+  end
+  object Edit3: TEdit
+    Left = 744
+    Height = 25
+    Top = 240
+    Width = 332
+    TabOrder = 18
+    Text = 'rtmp://liteavapp.qcloud.com/live/liteavdemoplayerstreamid'
   end
 end
