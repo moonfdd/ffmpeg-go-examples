@@ -117,7 +117,7 @@ object Form1: TForm1
     Top = 528
     Width = 332
     TabOrder = 10
-    Text = 'http://devimages.apple.com/iphone/samples/bipbop/gear1/prog_index.m3u8'
+    Text = 'rtmp://liteavapp.qcloud.com/live/liteavdemoplayerstreamid'
   end
   object Label3: TLabel
     Left = 32
@@ -167,7 +167,7 @@ object Form1: TForm1
     Top = 528
     Width = 332
     TabOrder = 14
-    Text = 'http://devimages.apple.com/iphone/samples/bipbop/gear1/prog_index.m3u8'
+    Text = 'rtmp://liteavapp.qcloud.com/live/liteavdemoplayerstreamid'
   end
   object Panel5: TPanel
     Left = 736

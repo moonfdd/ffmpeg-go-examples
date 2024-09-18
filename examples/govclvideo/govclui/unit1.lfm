@@ -123,8 +123,8 @@ object Form1: TForm1
     Left = 32
     Height = 17
     Top = 560
-    Width = 52
-    Caption = 'rtmp显示'
+    Width = 79
+    Caption = 'rtmp rtsp显示'
     ParentColor = False
   end
   object Panel4: TPanel
