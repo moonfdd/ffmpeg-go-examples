@@ -8,6 +8,7 @@ import (
 	"github.com/deepch/vdk/av"
 	"github.com/deepch/vdk/codec/h264parser"
 	"github.com/deepch/vdk/format/rtmp"
+	"github.com/moonfdd/ffmpeg-go-examples/examples/govclvideo/govclui/code/videohelper"
 	"github.com/moonfdd/ffmpeg-go/ffcommon"
 	"github.com/moonfdd/ffmpeg-go/libavcodec"
 	"github.com/moonfdd/ffmpeg-go/libavdevice"
@@ -164,6 +165,8 @@ func (f *TForm1) OnButton2Click(sender vcl.IObject) {
 
 // 初始化
 func (f *TForm1) OnButton3Click(sender vcl.IObject) {
+	videohelper.Init()
+	return
 	os.Setenv("VLC_PLUGIN_PATH", rtl.ExtractFilePath(vcl.Application.ExeName())+"/lib/windows/vlc/plugins/")
 	// os.Setenv("VLC_PLUGIN_PATH", rtl.ExtractFilePath(vcl.Application.ExeName())+"/plugins/")
 	os.Setenv("Path", os.Getenv("Path")+";./lib/windows/ffmpeg;./lib/windows/vlc;")
@@ -494,14 +497,25 @@ func (f *TForm1) OnButton6Click(sender vcl.IObject) {
 						// if got_picture != 0 {
 						img_convert_ctx.SwsScale((**byte)(unsafe.Pointer(&pFrame.Data)), (*int32)(unsafe.Pointer(&pFrame.Linesize)), 0, uint32(pCodecCtx.Height), (**byte)(unsafe.Pointer(&pFrameYUV.Data)), (*int32)(unsafe.Pointer(&pFrameYUV.Linesize)))
 
-						texture.SDL_UpdateYUVTexture(&rect2,
-							pFrameYUV.Data[0], pFrameYUV.Linesize[0],
-							pFrameYUV.Data[1], pFrameYUV.Linesize[1],
-							pFrameYUV.Data[2], pFrameYUV.Linesize[2])
+						if false {
+							texture.SDL_UpdateYUVTexture(&rect2,
+								pFrameYUV.Data[0], pFrameYUV.Linesize[0],
+								pFrameYUV.Data[1], pFrameYUV.Linesize[1],
+								pFrameYUV.Data[2], pFrameYUV.Linesize[2])
 
-						renderer.SDL_RenderClear()
-						renderer.SDL_RenderCopy(texture, nil, &rect)
-						renderer.SDL_RenderPresent()
+							renderer.SDL_RenderClear()
+							renderer.SDL_RenderCopy(texture, nil, &rect)
+							renderer.SDL_RenderPresent()
+						} else {
+							texture.SDL_UpdateYUVTexture(nil,
+								pFrameYUV.Data[0], pFrameYUV.Linesize[0],
+								pFrameYUV.Data[1], pFrameYUV.Linesize[1],
+								pFrameYUV.Data[2], pFrameYUV.Linesize[2])
+
+							renderer.SDL_RenderClear()
+							renderer.SDL_RenderCopy(texture, nil, nil)
+							renderer.SDL_RenderPresent()
+						}
 
 					}
 				}
@@ -580,4 +594,79 @@ func (f *TForm1) OnButton11Click(sender vcl.IObject) {
 func (f *TForm1) OnFormCreate(sender vcl.IObject) {
 	f.Button3.SetVisible(false)
 	f.OnButton3Click(nil)
+}
+
+// 库 播放
+func (f *TForm1) OnButton12Click(sender vcl.IObject) {
+	// f.Edit4.SetText("http://www.w3school.com.cn/i/movie.mp4")
+	//f.Edit4.SetText("http://devimages.apple.com/iphone/samples/bipbop/gear1/prog_index.m3u8")
+	// f.Edit1.SetText("rtmp://liteavapp.qcloud.com/live/liteavdemoplayerstreamid")
+	// videohelper.Init()
+	// return
+	// go func() {
+	a = videohelper.Play(f.Edit4.Text(), f.Panel6.Handle())
+	// b = videohelper.Play(f.Edit4.Text(), f.Panel5.Handle())
+	// if aaa {
+	// 	a = videohelper.Play(f.Edit4.Text(), f.Panel6.Handle())
+	// } else {
+	// 	fmt.Println("OnButton12Click")
+	// 	b = videohelper.Play(f.Edit4.Text(), f.Panel5.Handle())
+	// }
+	// }()
+	// videohelper.Play(f.Edit4.Text(), f.Panel5.Handle())
+	// videohelper.Play(f.Edit4.Text(), f.Panel4.Handle())
+	// videohelper.Play(f.Edit4.Text(), f.Panel3.Handle())
+	// videohelper.Play(f.Edit4.Text(), f.Panel2.Handle())
+	// videohelper.Play(f.Edit4.Text(), f.Panel1.Handle())
+}
+
+var a *videohelper.Playinfo
+var b *videohelper.Playinfo
+
+// 库 停止
+func (f *TForm1) OnButton13Click(sender vcl.IObject) {
+	// go func() {
+	// 	videohelper.Stop(a)
+	// 	videohelper.Stop(b)
+	// }()
+	videohelper.Stop(a)
+	// videohelper.Stop(b)
+	// if aaa {
+	// 	go videohelper.Stop(a)
+	// 	time.Sleep(time.Second)
+	// 	f.Panel6.SetVisible(false)
+	// 	f.Panel6.SetVisible(true)
+	// } else {
+	// 	go videohelper.Stop(b)
+	// 	time.Sleep(time.Second)
+	// 	f.Panel5.SetVisible(false)
+	// 	f.Panel5.SetVisible(true)
+	// }
+	// aaa = !aaa
+	// vcl.ShowMessage(f.Panel6.Caption() + ":" + f.Panel5.Caption())
+	// 整个操作完成后，显示到UI上时使用vcl.ThreadSync切换到主线程中执行。
+	return
+
+}
+
+func (f *TForm1) OnPanel6Click(sender vcl.IObject) {
+	vcl.ShowMessage(f.Panel6.Caption() + ":" + f.Panel5.Caption())
+
+}
+
+var bb bool
+
+func (f *TForm1) OnButton14Click(sender vcl.IObject) {
+	if bb {
+		f.Panel6.SetVisible(true)
+		f.Panel5.SetVisible(true)
+	} else {
+		f.Panel6.SetVisible(false)
+		f.Panel5.SetVisible(false)
+	}
+	bb = !bb
+}
+
+func (f *TForm1) OnButton15Click(sender vcl.IObject) {
+	vcl.ShowMessage(fmt.Sprint(f.Panel6.Visible()))
 }

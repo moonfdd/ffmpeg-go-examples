@@ -123,8 +123,8 @@ object Form1: TForm1
     Left = 32
     Height = 17
     Top = 560
-    Width = 52
-    Caption = 'rtmp显示'
+    Width = 79
+    Caption = 'rtmp rtsp显示'
     ParentColor = False
   end
   object Panel4: TPanel
@@ -210,5 +210,58 @@ object Form1: TForm1
     Width = 332
     TabOrder = 18
     Text = 'rtmp://liteavapp.qcloud.com/live/liteavdemoplayerstreamid'
+  end
+  object Panel6: TPanel
+    Left = 774
+    Height = 206
+    Top = 312
+    Width = 322
+    Caption = 'Panel6'
+    TabOrder = 19
+    OnClick = Panel6Click
+  end
+  object Edit4: TEdit
+    Left = 760
+    Height = 25
+    Top = 528
+    Width = 332
+    TabOrder = 20
+    Text = 'rtmp://liteavapp.qcloud.com/live/liteavdemoplayerstreamid'
+  end
+  object Button12: TButton
+    Left = 942
+    Height = 25
+    Top = 560
+    Width = 75
+    Caption = '播放'
+    OnClick = Button12Click
+    TabOrder = 21
+  end
+  object Button13: TButton
+    Left = 1021
+    Height = 25
+    Top = 560
+    Width = 75
+    Caption = '停止'
+    OnClick = Button13Click
+    TabOrder = 22
+  end
+  object Button14: TButton
+    Left = 856
+    Height = 25
+    Top = 560
+    Width = 75
+    Caption = '显示panel'
+    OnClick = Button14Click
+    TabOrder = 23
+  end
+  object Button15: TButton
+    Left = 776
+    Height = 25
+    Top = 560
+    Width = 75
+    Caption = '状态'
+    OnClick = Button15Click
+    TabOrder = 24
   end
 end

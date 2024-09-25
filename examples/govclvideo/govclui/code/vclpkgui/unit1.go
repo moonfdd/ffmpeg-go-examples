@@ -32,6 +32,12 @@ type TForm1 struct {
     Button11 *vcl.TButton
     Label5   *vcl.TLabel
     Edit3    *vcl.TEdit
+    Panel6   *vcl.TPanel
+    Edit4    *vcl.TEdit
+    Button12 *vcl.TButton
+    Button13 *vcl.TButton
+    Button14 *vcl.TButton
+    Button15 *vcl.TButton
 
     //::private::
     TForm1Fields

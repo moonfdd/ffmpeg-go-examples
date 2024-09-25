@@ -1,0 +1,349 @@
+package videohelper
+
+import (
+	"fmt"
+	"os"
+	"strings"
+	"sync"
+	"unsafe"
+
+	"github.com/moonfdd/ffmpeg-go/ffcommon"
+	"github.com/moonfdd/ffmpeg-go/libavcodec"
+	"github.com/moonfdd/ffmpeg-go/libavdevice"
+	"github.com/moonfdd/ffmpeg-go/libavformat"
+	"github.com/moonfdd/ffmpeg-go/libavutil"
+	"github.com/moonfdd/ffmpeg-go/libswscale"
+	sdl "github.com/moonfdd/sdl2-go/sdl2"
+	"github.com/moonfdd/sdl2-go/sdlcommon"
+	"github.com/ying32/govcl/vcl"
+)
+
+// 只能调用一次，程序开始时调用
+func Init() (isSuc bool) {
+	if isRunning { // 运行状态不需要操作
+		return
+	}
+	m.Lock()
+	defer m.Unlock()
+	if isRunning { // 运行状态不需要操作
+		return
+	}
+	e := os.Getenv("Path")
+	if !strings.HasSuffix(e, ";") {
+		e += ";"
+	}
+	os.Setenv("Path", os.Getenv("Path")+";./lib/windows/ffmpeg;./lib/windows/vlc;")
+	ffcommon.SetAvutilPath("./lib/windows/ffmpeg/avutil-56.dll")
+	ffcommon.SetAvcodecPath("./lib/windows/ffmpeg/avcodec-58.dll")
+	ffcommon.SetAvdevicePath("./lib/windows/ffmpeg/avdevice-58.dll")
+	ffcommon.SetAvfilterPath("./lib/windows/ffmpeg/avfilter-56.dll")
+	ffcommon.SetAvformatPath("./lib/windows/ffmpeg/avformat-58.dll")
+	ffcommon.SetAvpostprocPath("./lib/windows/ffmpeg/postproc-55.dll")
+	ffcommon.SetAvswresamplePath("./lib/windows/ffmpeg/swresample-3.dll")
+	ffcommon.SetAvswscalePath("./lib/windows/ffmpeg/swscale-5.dll")
+	sdlcommon.SetSDL2Path("./lib/windows/sdl/SDL2.0.16.dll")
+	libavdevice.AvdeviceRegisterAll()
+	libavformat.AvformatNetworkInit()
+	if sdl.SDL_Init(sdl.SDL_INIT_VIDEO) != 0 {
+		fmt.Printf("Could not initialize SDL - %s\n", sdl.SDL_GetError())
+		return
+	}
+	isRunning = true
+	fmt.Println("初始化成功")
+	return
+}
+
+var map_VideoAddr_StreamInfo map[string]*StreamInfo = make(map[string]*StreamInfo)
+
+type StreamInfo struct {
+	M         *sync.Mutex
+	IsRunning bool
+	HwndSet   map[uintptr]*PlayInfo
+}
+
+type PlayInfo struct {
+	M        *sync.Mutex
+	Window   *sdl.SDL_Window
+	Renderer *sdl.SDL_Renderer
+	Texture  *sdl.SDL_Texture
+}
+
+var m sync.Mutex
+var isRunning bool
+
+// 播放
+func Play(videoAddr string, hwnd uintptr) (isSuc bool) {
+	defer func() {
+		fmt.Printf("Play videoAddr = %s,hwnd=%d,isSuc=%s", videoAddr, hwnd, fmt.Sprint(isSuc))
+	}()
+	if !isRunning { // 非运行状态不需要操作
+		return
+	}
+	m.Lock()
+	defer m.Unlock()
+	if !isRunning { // 非运行状态不需要操作
+		return
+	}
+
+	var si *StreamInfo
+	var ok bool
+	// 新增stream,全局加锁，map_VideoAddr_StreamInfo安全
+	if si, ok = map_VideoAddr_StreamInfo[videoAddr]; !ok {
+		si = &StreamInfo{}
+		si.M = &sync.Mutex{}
+		si.HwndSet = make(map[uintptr]*PlayInfo)
+		si.IsRunning = true
+		map_VideoAddr_StreamInfo[videoAddr] = si
+		si.M.Lock()
+		defer si.M.Unlock()
+		fmt.Println("go loopStream")
+		go loopStream(videoAddr, si)
+	} else {
+		si.M.Lock()
+		defer si.M.Unlock()
+	}
+
+	// 新增hwnd，stream枷锁，hwnd枷锁
+	if _, ok = si.HwndSet[hwnd]; !ok {
+		si.HwndSet[hwnd] = &PlayInfo{M: &sync.Mutex{}}
+	}
+	isSuc = !ok
+
+	return
+}
+
+// 循环流
+func loopStream(videoAddr string, si *StreamInfo) {
+	fmt.Println("loopStream开始")
+	for isRunning && si.IsRunning {
+		runStream(videoAddr, si)
+	}
+}
+
+// 运行单次流
+func runStream(videoAddr string, si *StreamInfo) {
+	if !isRunning || !si.IsRunning {
+		return
+	}
+	// fmt.Println("runStream开始")
+	var pFormatCtx *libavformat.AVFormatContext
+	var i, videoindex ffcommon.FInt
+	var pCodecCtx *libavcodec.AVCodecContext
+	var pCodec *libavcodec.AVCodec
+	var ifmt *libavformat.AVInputFormat
+	pFormatCtx = libavformat.AvformatAllocContext()
+	defer libavformat.AvformatCloseInput(&pFormatCtx)
+	var options *libavutil.AVDictionary
+	si.M.Lock()
+	if libavformat.AvformatOpenInput(&pFormatCtx, videoAddr, ifmt, &options) < 0 {
+		fmt.Printf("Cannot open camera.\n")
+		si.M.Unlock()
+		return
+	}
+	si.M.Unlock()
+	if pFormatCtx.AvformatFindStreamInfo(nil) < 0 {
+		fmt.Printf("Couldn't find stream information.")
+		return
+	}
+	videoindex = -1
+	for i = 0; i < int32(pFormatCtx.NbStreams); i++ {
+		if pFormatCtx.GetStream(uint32(i)).Codec.CodecType == libavutil.AVMEDIA_TYPE_VIDEO {
+			videoindex = i
+			break
+		}
+	}
+	if videoindex == -1 {
+		fmt.Printf("Didn't find a video stream.\n")
+		return
+	}
+	pCodecCtxPara := pFormatCtx.GetStream(uint32(videoindex)).Codecpar
+	pCodec = libavcodec.AvcodecFindDecoder(pCodecCtxPara.CodecId)
+	if pCodec == nil {
+		fmt.Printf("Codec not found.\n")
+		return
+	}
+
+	pCodecCtx = pCodec.AvcodecAllocContext3()
+	if pCodecCtx == nil {
+		fmt.Printf("Cannot alloc valid decode codec context.\n")
+		return
+	}
+	defer pCodecCtx.AvcodecClose()
+
+	if pCodecCtx.AvcodecParametersToContext(pCodecCtxPara) < 0 {
+		fmt.Printf("Cannot initialize parameters.\n")
+		return
+	}
+
+	if pCodecCtx.AvcodecOpen2(pCodec, nil) < 0 {
+		fmt.Printf("Could not open codec.\n")
+		return
+	}
+
+	var pFrame, pFrameYUV *libavutil.AVFrame
+	pFrame = libavutil.AvFrameAlloc()
+	defer libavutil.AvFree(uintptr(unsafe.Pointer(pFrame)))
+	pFrameYUV = libavutil.AvFrameAlloc()
+	defer libavutil.AvFree(uintptr(unsafe.Pointer(pFrameYUV)))
+	out_buffer := (*byte)(unsafe.Pointer(libavutil.AvMalloc(uint64(libavcodec.AvpictureGetSize(int32(libavutil.AV_PIX_FMT_YUV420P), pCodecCtx.Width, pCodecCtx.Height)))))
+	((*libavcodec.AVPicture)(unsafe.Pointer(pFrameYUV))).AvpictureFill(out_buffer, libavutil.AV_PIX_FMT_YUV420P, pCodecCtx.Width, pCodecCtx.Height)
+	defer libavutil.AvFree(uintptr(unsafe.Pointer(out_buffer)))
+	packet := &libavcodec.AVPacket{}
+	var img_convert_ctx *libswscale.SwsContext
+	var ret int32
+	img_convert_ctx = libswscale.SwsGetContext(pCodecCtx.Width, pCodecCtx.Height, pCodecCtx.PixFmt, pCodecCtx.Width, pCodecCtx.Height, libavutil.AV_PIX_FMT_YUV420P, libswscale.SWS_BICUBIC, nil, nil, nil)
+	defer img_convert_ctx.SwsFreeContext()
+	fmt.Println("111")
+	for isRunning && si.IsRunning {
+		// fmt.Println("222")
+		// fmt.Println("loop")
+		if pFormatCtx.AvReadFrame(packet) >= 0 {
+			if int32(packet.StreamIndex) == videoindex {
+				if pCodecCtx.AvcodecSendPacket(packet) < 0 {
+					packet.AvPacketUnref()
+					fmt.Printf(fmt.Sprintf("pCodecCtx.AvcodecSendPacket(packet) < 0\n"))
+					return
+				}
+				ret = pCodecCtx.AvcodecReceiveFrame(pFrame)
+
+				if ret < 0 {
+					packet.AvFreePacket()
+					fmt.Printf(fmt.Sprintf("Decode Error.\n"))
+					continue
+					vcl.ShowMessage(fmt.Sprintf("Decode Error.\n"))
+					return
+				}
+				if ret >= 0 {
+					// if got_picture != 0 {
+					img_convert_ctx.SwsScale((**byte)(unsafe.Pointer(&pFrame.Data)), (*int32)(unsafe.Pointer(&pFrame.Linesize)), 0, uint32(pCodecCtx.Height), (**byte)(unsafe.Pointer(&pFrameYUV.Data)), (*int32)(unsafe.Pointer(&pFrameYUV.Linesize)))
+					if true {
+						si.M.Lock()
+						for k, v := range si.HwndSet {
+							// fmt.Println("显示")
+							v.M.Lock()
+							var window *sdl.SDL_Window
+							var renderer *sdl.SDL_Renderer
+							var texture *sdl.SDL_Texture
+							if true {
+								if v.Window == nil {
+									window = sdl.SDL_CreateWindowFrom(k)
+									if window == nil {
+										continue
+									}
+									renderer = window.SDL_CreateRenderer(-1, 0)
+									if renderer == nil {
+										window.SDL_DestroyWindow()
+										continue
+									}
+									texture = renderer.SDL_CreateTexture(sdl.SDL_PIXELFORMAT_YV12,
+										sdl.SDL_TEXTUREACCESS_STREAMING,
+										pCodecCtx.Width,
+										pCodecCtx.Height)
+									if texture == nil {
+										renderer.SDL_DestroyRenderer()
+										window.SDL_DestroyWindow()
+										continue
+									}
+									v.Window = window
+									v.Renderer = renderer
+									v.Texture = texture
+									// fmt.Println("创建")
+								} else {
+									// fmt.Println("已存在")
+									window = v.Window
+									v.Renderer = renderer
+									v.Texture = texture
+								}
+							}
+
+							// if v.Window == nil {
+							// 	window = sdl.SDL_CreateWindowFrom(k)
+							// 	if window == nil {
+							// 		continue
+							// 	}
+							// }
+
+							// renderer = window.SDL_CreateRenderer(-1, 0)
+							// if renderer == nil {
+							// 	window.SDL_DestroyWindow()
+							// 	continue
+							// }
+							// texture = renderer.SDL_CreateTexture(sdl.SDL_PIXELFORMAT_YV12,
+							// 	sdl.SDL_TEXTUREACCESS_STREAMING,
+							// 	pCodecCtx.Width,
+							// 	pCodecCtx.Height)
+							// if texture == nil {
+							// 	renderer.SDL_DestroyRenderer()
+							// 	window.SDL_DestroyWindow()
+							// 	continue
+							// }
+
+							if window != nil {
+								// fmt.Println("显示")
+								texture.SDL_UpdateYUVTexture(nil,
+									pFrameYUV.Data[0], pFrameYUV.Linesize[0],
+									pFrameYUV.Data[1], pFrameYUV.Linesize[1],
+									pFrameYUV.Data[2], pFrameYUV.Linesize[2])
+
+								renderer.SDL_RenderClear()
+								renderer.SDL_RenderCopy(texture, nil, nil)
+								renderer.SDL_RenderPresent()
+							}
+							v.M.Unlock()
+						}
+						// texture.SDL_UpdateYUVTexture(&rect2,
+						// 	pFrameYUV.Data[0], pFrameYUV.Linesize[0],
+						// 	pFrameYUV.Data[1], pFrameYUV.Linesize[1],
+						// 	pFrameYUV.Data[2], pFrameYUV.Linesize[2])
+
+						// renderer.SDL_RenderClear()
+						// renderer.SDL_RenderCopy(texture, nil, &rect)
+						// renderer.SDL_RenderPresent()
+						si.M.Unlock()
+					}
+
+				}
+			}
+			packet.AvFreePacket()
+		} else {
+			return
+		}
+	}
+	fmt.Println("333")
+}
+
+// 停止
+func Stop(videoAddr string, hwnd uintptr) bool {
+	var si *StreamInfo
+	var ok bool
+	if si, ok = map_VideoAddr_StreamInfo[videoAddr]; !ok {
+		return ok
+	}
+	if _, ok = si.HwndSet[hwnd]; !ok {
+		return ok
+	}
+	// 删除hwnd
+	delete(si.HwndSet, hwnd)
+	// 删除stream
+	if len(si.HwndSet) == 0 {
+		delete(map_VideoAddr_StreamInfo, videoAddr)
+	}
+	return true
+}
+
+// 只能调用一次，程序结束时调用
+func Dispose() (isSuc bool) {
+	if !isRunning { // 非运行状态不需要操作
+		return
+	}
+	m.Lock()
+	defer m.Unlock()
+	if !isRunning { // 非运行状态不需要操作
+		return
+	}
+	isRunning = false
+	sdl.SDL_Quit()
+	libavformat.AvformatNetworkDeinit()
+	isSuc = true
+	return
+}

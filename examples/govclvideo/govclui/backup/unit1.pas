@@ -15,6 +15,10 @@ type
     Button1: TButton;
     Button10: TButton;
     Button11: TButton;
+    Button12: TButton;
+    Button13: TButton;
+    Button14: TButton;
+    Button15: TButton;
     Button2: TButton;
     Button3: TButton;
     Button4: TButton;
@@ -26,6 +30,7 @@ type
     Edit1: TEdit;
     Edit2: TEdit;
     Edit3: TEdit;
+    Edit4: TEdit;
     Label1: TLabel;
     Label2: TLabel;
     Label3: TLabel;
@@ -36,8 +41,13 @@ type
     Panel3: TPanel;
     Panel4: TPanel;
     Panel5: TPanel;
+    Panel6: TPanel;
     procedure Button10Click(Sender: TObject);
     procedure Button11Click(Sender: TObject);
+    procedure Button12Click(Sender: TObject);
+    procedure Button13Click(Sender: TObject);
+    procedure Button14Click(Sender: TObject);
+    procedure Button15Click(Sender: TObject);
     procedure Button1Click(Sender: TObject);
     procedure Button2Click(Sender: TObject);
     procedure Button3Click(Sender: TObject);
@@ -48,6 +58,7 @@ type
     procedure Button8Click(Sender: TObject);
     procedure Button9Click(Sender: TObject);
     procedure FormCreate(Sender: TObject);
+    procedure Panel6Click(Sender: TObject);
   private
 
   public
@@ -74,6 +85,26 @@ begin
 end;
 
 procedure TForm1.Button11Click(Sender: TObject);
+begin
+
+end;
+
+procedure TForm1.Button12Click(Sender: TObject);
+begin
+
+end;
+
+procedure TForm1.Button13Click(Sender: TObject);
+begin
+
+end;
+
+procedure TForm1.Button14Click(Sender: TObject);
+begin
+
+end;
+
+procedure TForm1.Button15Click(Sender: TObject);
 begin
 
 end;
@@ -119,6 +150,11 @@ begin
 end;
 
 procedure TForm1.FormCreate(Sender: TObject);
+begin
+
+end;
+
+procedure TForm1.Panel6Click(Sender: TObject);
 begin
 
 end;
