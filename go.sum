@@ -73,6 +73,7 @@ github.com/google/pprof v0.0.0-20181206194817-3ea8567a2e57/go.mod h1:zfwlbNMJ+OI
 github.com/google/pprof v0.0.0-20210407192527-94a9f03dee38/go.mod h1:kpwsk12EmLew5upagYY7GY0pfYCcupk39gWOCRROcvE=
 github.com/google/pprof v0.0.0-20230309165930-d61513b1440d/go.mod h1:79YE0hCXdHag9sBkw2o+N/YnZtTkXi0UT9Nnixa5eYk=
 github.com/google/uuid v1.1.1/go.mod h1:TIyPZe4MgqvfeYDBFedMoGGpEw/LqOeaOT+nhxU+yHo=
+github.com/google/uuid v1.3.0 h1:t6JiXgmwXMjEs8VusXIJk2BXHsn+wx8BZdTaoZ5fu7I=
 github.com/google/uuid v1.3.0/go.mod h1:TIyPZe4MgqvfeYDBFedMoGGpEw/LqOeaOT+nhxU+yHo=
 github.com/googleapis/gax-go v2.0.0+incompatible/go.mod h1:SFVmujtThgffbyetf+mdk2eWhX2bMyUtNHzFKcPA9HY=
 github.com/googleapis/gax-go/v2 v2.0.3/go.mod h1:LLvjysVCY1JZeum8Z6l8qUty8fiNwE08qbEPm1M08qg=
@@ -109,8 +110,8 @@ github.com/microcosm-cc/bluemonday v1.0.1/go.mod h1:hsXNsILzKxV+sX77C5b8FSuKF00v
 github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd/go.mod h1:6dJC0mAP4ikYIbvyc7fijjWJddQyLn8Ig3JB5CqoB9Q=
 github.com/modern-go/reflect2 v1.0.1/go.mod h1:bx2lNnkwVCuqBIxFjflWJWanXIb3RllmbCylyMrvgv0=
 github.com/moonfdd/ffmpeg-go v0.0.0-20230312012703-645db7644c54/go.mod h1:/IOm58TbyzXZ3aQrYqaz4TSu+UO6exa4Sdc4kIiWWsA=
-github.com/moonfdd/ffmpeg-go v0.0.0-20230421133911-7e3161df350f h1:6zXMYJCuZoxRQSXGwaaIYSKCbilkJpT1tROhoaNWfQc=
-github.com/moonfdd/ffmpeg-go v0.0.0-20230421133911-7e3161df350f/go.mod h1:QG6o6CUIRcYUpl9WqRalTdYdiiCu1zVI34W0TMrJ2E4=
+github.com/moonfdd/ffmpeg-go v0.0.0-20240925083614-afd889cdf7fa h1:xc8csIP67JKQatBuziffsJBAPEaWz5/fHR58AXtp3/w=
+github.com/moonfdd/ffmpeg-go v0.0.0-20240925083614-afd889cdf7fa/go.mod h1:QG6o6CUIRcYUpl9WqRalTdYdiiCu1zVI34W0TMrJ2E4=
 github.com/moonfdd/sdl2-go v0.0.0-20240925022729-4397b45d52f5 h1:84clgeI21xgKVAsARma64HJHxCiXA+D3QlygU0yCN7s=
 github.com/moonfdd/sdl2-go v0.0.0-20240925022729-4397b45d52f5/go.mod h1:As4b7mDqTjd1L8q5Q3boNxiQlzGizy/xdyKTMKB1i8E=
 github.com/neelance/astrewrite v0.0.0-20160511093645-99348263ae86/go.mod h1:kHJEU3ofeGjhHklVoIGuVj85JJwZ6kWPaJwCIxgnFmo=
@@ -201,6 +202,10 @@ github.com/prometheus/client_golang v0.8.0/go.mod h1:7SWBe2y4D6OKWSNQJUaRYU/AaXP
 github.com/prometheus/client_model v0.0.0-20180712105110-5c3871d89910/go.mod h1:MbSGuTsp3dbXC40dX6PRTWyKYBIrTGTE9sqQNg2J8bo=
 github.com/prometheus/common v0.0.0-20180801064454-c7de2306084e/go.mod h1:daVV7qP5qjZbuso7PdcryaAu0sAZbrN9i7WWcTMWvro=
 github.com/prometheus/procfs v0.0.0-20180725123919-05ee40e3a273/go.mod h1:c3At6R/oaqEKCNdg8wHV1ftS6bRYblBhIjjI8uT2IGk=
+github.com/q191201771/lal v0.37.4 h1:yq1PuuHfyzOjGLsZOZIorI+FcmgKSJKEitG9rYAMpYk=
+github.com/q191201771/lal v0.37.4/go.mod h1:DNDsCng/5dZOira1v6Z/yR45l5K4+EmPC4BqciZGdgQ=
+github.com/q191201771/naza v0.30.48 h1:lbYUaa7A15kJKYwOiU4AbFS1Zo8oQwppl2tLEbJTqnw=
+github.com/q191201771/naza v0.30.48/go.mod h1:n+dpJjQSh90PxBwxBNuifOwQttywvSIN5TkWSSYCeBk=
 github.com/russross/blackfriday v1.5.2/go.mod h1:JO/DiYxRf+HjHt06OyowR9PTA263kcR/rfWxYHBV53g=
 github.com/sclevine/agouti v3.0.0+incompatible/go.mod h1:b4WX9W9L1sfQKXeJf1mUTLZKJ48R1S7H23Ji7oFO5Bw=
 github.com/sergi/go-diff v1.0.0/go.mod h1:0CfEIISq7TuYL3j771MWULgwwjU+GofnZX9QAmXWZgo=
@@ -246,6 +251,8 @@ github.com/tarm/serial v0.0.0-20180830185346-98f6abe2eb07/go.mod h1:kDXzergiv9cb
 github.com/tejasmanohar/timerange-go v1.0.0/go.mod h1:tic3Puc+uofo0D7502PvYBlu5sJMszF5nGbsYsu7FiI=
 github.com/viant/assertly v0.4.8/go.mod h1:aGifi++jvCrUaklKEKT0BU95igDNaqkvz+49uaYMPRU=
 github.com/viant/toolbox v0.24.0/go.mod h1:OxMCG57V0PXuIP2HNQrtJf2CjqdmbrOx5EkMILuUhzM=
+github.com/yapingcat/gomedia v0.0.0-20240906162731-17feea57090c h1:xA2TJS9Hu/ivzaZIrDcwvpJ3Fnpsk5fDOJ4iSnL6J0w=
+github.com/yapingcat/gomedia v0.0.0-20240906162731-17feea57090c/go.mod h1:WSZ59bidJOO40JSJmLqlkBJrjZCtjbKKkygEMfzY/kc=
 github.com/ying32/dylib v0.0.0-20220227124818-fdf9ea9fbc96 h1:+kU/yXSAQPL4G7OQOxz/j62GdM+G5yd5J1/NNm7u3QI=
 github.com/ying32/dylib v0.0.0-20220227124818-fdf9ea9fbc96/go.mod h1:WPBTfbqg/aA1xqHFPB4fgBHETq/G/75yErbnexmaEOo=
 github.com/ying32/govcl v2.2.3+incompatible h1:Iyfcl26yNE1USm+3uG+btQyhkoFIV18+VITrUdHu8Lw=
